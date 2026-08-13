@@ -74,6 +74,7 @@ class Uploads(Transfers):
             ("ban-user", self._ban_user),
             ("ban-user-ip", self._ban_user),
             ("file-connection-closed", self._file_connection_closed),
+            ("file-connection-replaced", self._file_connection_replaced),
             ("file-transfer-init", self._file_transfer_init),
             ("file-upload-progress", self._file_upload_progress),
             ("peer-connection-closed", self._peer_connection_error),
@@ -1232,6 +1233,14 @@ class Uploads(Transfers):
             speed=speed
         )
         self._update_transfer(upload)
+
+    def _file_connection_replaced(self, username, token, previous_sock, sock):
+        """Continue a pending upload on a replacement connection."""
+
+        upload = self.active_users.get(username, {}).get(token)
+
+        if upload is not None and upload.sock == previous_sock:
+            upload.sock = sock
 
     def _file_connection_closed(self, username, token, sock, timed_out):
         """A file upload connection has closed for any reason."""

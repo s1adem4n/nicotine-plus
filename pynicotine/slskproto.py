@@ -1684,8 +1684,16 @@ class NetworkThread(Thread):
 
             init = self._indirect_token_init_msgs.pop(pierce_token)
             previous_sock = init.sock
+            previous_conn = self._conns.get(previous_sock)
             is_direct_conn_in_progress = (
-                previous_sock is not None and not self._conns[previous_sock].is_established
+                previous_conn is not None and not previous_conn.is_established
+            )
+            pending_file_upload = self._file_upload_msgs.get(previous_conn)
+            should_replace_pending_file_upload = (
+                init.conn_type == ConnectionType.FILE
+                and previous_conn in self._file_init_msgs
+                and pending_file_upload is not None
+                and pending_file_upload.offset is None
             )
 
             log.add_conn("Indirect connection to user %s with token %s established",
@@ -1693,7 +1701,7 @@ class NetworkThread(Thread):
 
             self._set_tcp_buffer_size(conn.sock, init.conn_type)
 
-            if previous_sock is None or is_direct_conn_in_progress:
+            if previous_sock is None or is_direct_conn_in_progress or should_replace_pending_file_upload:
                 init.sock = conn.sock
                 log.add_conn("Using as primary connection, since no direct connection is established")
             else:
@@ -1701,9 +1709,41 @@ class NetworkThread(Thread):
                 # the indirect connection. Keep it open.
                 log.add_conn("Direct connection was already established, keeping it as primary connection")
 
-            if is_direct_conn_in_progress:
+            if should_replace_pending_file_upload:
+                # A successful TCP handshake does not guarantee that the direct file connection
+                # is usable. If it stalls before the peer sends its file offset, prefer the
+                # subsequently established indirect connection and continue the pending upload.
+                file_init = self._file_init_msgs[previous_conn]
+                msg_content = self._pack_network_message(file_init)
+
+                if msg_content is None:
+                    init.sock = previous_sock
+                    return None
+
+                del self._file_init_msgs[previous_conn]
+                self._file_upload_msgs[conn] = self._file_upload_msgs.pop(previous_conn)
+                file_init.sock = conn.sock
+                pending_file_upload.sock = conn.sock
+
+                events.emit_main_thread(
+                    "file-connection-replaced", username=init.target_user, token=file_init.token,
+                    previous_sock=previous_sock, sock=conn.sock
+                )
+                log.add_conn("Replacing stalled direct file connection to user %s with indirect connection",
+                             init.target_user)
+                self._close_connection(previous_conn)
+
+                # The transfer init was already processed by the upload component on the direct
+                # connection. Only resend its wire payload here; emitting the message again would
+                # make the upload component reject the already-consumed transfer token.
+                self._file_init_msgs[conn] = file_init
+                conn.out_buffer += msg_content
+                conn.has_post_init_activity = True
+                self._modify_connection_events(conn, selectors.EVENT_READ | selectors.EVENT_WRITE)
+
+            elif is_direct_conn_in_progress:
                 log.add_conn("Stopping direct connection attempt to user %s", init.target_user)
-                self._close_connection(self._conns[previous_sock])
+                self._close_connection(previous_conn)
 
         elif msg_class is PeerInit:
             username = msg.target_user
