@@ -70,9 +70,11 @@ from pynicotine.slskmessages import ServerReconnect
 from pynicotine.slskmessages import SetDownloadLimit
 from pynicotine.slskmessages import SetUploadLimit
 from pynicotine.slskmessages import SetWaitPort
+from pynicotine.slskmessages import SharedFileListRequest
 from pynicotine.slskmessages import SharedFileListResponse
 from pynicotine.slskmessages import UnwatchUser
 from pynicotine.slskmessages import UploadFile
+from pynicotine.slskmessages import UserInfoRequest
 from pynicotine.slskmessages import UserInfoResponse
 from pynicotine.slskmessages import UserStatus
 from pynicotine.slskmessages import WatchUser
@@ -598,14 +600,16 @@ class NetworkThread(Thread):
                      "token %s failed", (conn_type, username, token))
 
         if init.sock is not None:
+            init.retryable_msgs.clear()
             return
 
         # No direct connection was established, give up
         events.emit_main_thread(
             "peer-connection-error", username=username, conn_type=conn_type,
-            msgs=init.outgoing_msgs[:], is_offline=False
+            msgs=init.outgoing_msgs + init.retryable_msgs, is_offline=False
         )
         init.outgoing_msgs.clear()
+        init.retryable_msgs.clear()
         self._username_init_msgs.pop(username + conn_type, None)
 
     def _check_indirect_request_timeouts(self, current_time=None, expire_all=False):
@@ -788,6 +792,12 @@ class NetworkThread(Thread):
         username = init.target_user
         sock = init.sock
         msgs = init.outgoing_msgs
+        conn = self._conns.get(sock)
+
+        if conn is not None and init.indirect_token in self._indirect_token_init_msgs:
+            init.retryable_msgs.extend(
+                msg for msg in msgs if isinstance(msg, (SharedFileListRequest, UserInfoRequest))
+            )
 
         for j in msgs:
             j.username = username
@@ -1695,15 +1705,20 @@ class NetworkThread(Thread):
                 and pending_file_upload is not None
                 and pending_file_upload.offset is None
             )
+            should_replace_unresponsive_peer = (
+                init.conn_type == ConnectionType.PEER
+                and bool(init.retryable_msgs)
+            )
 
             log.add_conn("Indirect connection to user %s with token %s established",
                          (init.target_user, pierce_token))
 
             self._set_tcp_buffer_size(conn.sock, init.conn_type)
 
-            if previous_sock is None or is_direct_conn_in_progress or should_replace_pending_file_upload:
+            if (previous_conn is None or is_direct_conn_in_progress
+                    or should_replace_pending_file_upload or should_replace_unresponsive_peer):
                 init.sock = conn.sock
-                log.add_conn("Using as primary connection, since no direct connection is established")
+                log.add_conn("Using indirect connection as primary connection")
             else:
                 # We already have a direct connection, but some clients may send a message over
                 # the indirect connection. Keep it open.
@@ -1740,6 +1755,16 @@ class NetworkThread(Thread):
                 conn.out_buffer += msg_content
                 conn.has_post_init_activity = True
                 self._modify_connection_events(conn, selectors.EVENT_READ | selectors.EVENT_WRITE)
+
+            elif should_replace_unresponsive_peer:
+                log.add_conn("Retrying peer messages to user %s over indirect connection", init.target_user)
+
+                for retryable_msg in init.retryable_msgs:
+                    retryable_msg.sock = conn.sock
+
+                self._process_outgoing_messages(init.retryable_msgs)
+                init.retryable_msgs.clear()
+                self._close_connection(previous_conn)
 
             elif is_direct_conn_in_progress:
                 log.add_conn("Stopping direct connection attempt to user %s", init.target_user)
@@ -1933,6 +1958,7 @@ class NetworkThread(Thread):
     def _process_peer_input(self, conn):
         """Reads messages from the input buffer of a 'P' connection."""
 
+        conn.init.retryable_msgs.clear()
         in_buffer = conn.in_buffer
         buffer_len = len(in_buffer)
         msg_content_offset = 8

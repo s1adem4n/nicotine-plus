@@ -3166,7 +3166,7 @@ class PeerInit(PeerInitMessage):
     """
 
     __slots__ = ("sock", "init_user", "target_user", "conn_type", "indirect_token", "indirect_request_time",
-                 "outgoing_msgs")
+                 "outgoing_msgs", "retryable_msgs")
 
     def __init__(self, sock=None, init_user=None, target_user=None, conn_type=None, *, msg_content=None):
         PeerInitMessage.__init__(self, msg_content)
@@ -3177,6 +3177,7 @@ class PeerInit(PeerInitMessage):
         self.indirect_token = None
         self.indirect_request_time = None
         self.outgoing_msgs = []
+        self.retryable_msgs = []
 
     def make_network_message(self):
         msg = bytearray()
