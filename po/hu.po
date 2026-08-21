@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-08-12 14:11+0300\n"
-"PO-Revision-Date: 2026-07-20 01:01+0000\n"
+"PO-Revision-Date: 2026-08-17 12:32+0000\n"
 "Last-Translator: Szia Tomi <sziatomi01@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/nicotine-plus/"
 "nicotine-plus/hu/>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2026.8.dev0\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 
 #: data/org.nicotine_plus.Nicotine.desktop.in:5
 msgid "Soulseek Client"
@@ -127,14 +127,12 @@ msgid "start the program without showing window"
 msgstr "indítsa el a programot az ablak megjelenítése nélkül"
 
 #: pynicotine/__init__.py:56
-#, fuzzy
 msgid "address"
-msgstr "Címek"
+msgstr "cím"
 
 #: pynicotine/__init__.py:57
-#, fuzzy
 msgid "bind connections to the given IP address"
-msgstr "Felhasználótól vagy IP-címről érkező kapcsolatok blokkolása"
+msgstr "Kapcsolatok hozzárendelése a megadott IP címhez"
 
 #: pynicotine/__init__.py:60
 msgid "port"
@@ -192,10 +190,10 @@ msgid "Buddy Status"
 msgstr "Barát státusz"
 
 #: pynicotine/chatrooms.py:312
-#, fuzzy, python-format
+#, python-format
 msgid "User %(user)s has not enabled private room invitations"
 msgstr ""
-"%(user)s felhasználó hozzá lett adva a következő privát szobához: %(room)s"
+"%(user)s felhasználó nem engedélyezte a privát szobákba szóló meghívókat"
 
 #: pynicotine/chatrooms.py:367
 #, python-format
@@ -220,24 +218,24 @@ msgid "You have been removed from private room %(room)s"
 msgstr "Ön el lett távolítva a következő privát szobából: %(room)s"
 
 #: pynicotine/chatrooms.py:439 pynicotine/privatechat.py:261
-#, fuzzy, python-format
+#, python-format
 msgid "User %(user)s is now an operator of room %(room)s"
-msgstr "%(user)s felhasználó többé nem operátor a következő szobában: %(room)s"
+msgstr "Jelenleg %(user)s felhasználó a kezelője a következő szobának: %(room)s"
 
 #: pynicotine/chatrooms.py:458 pynicotine/privatechat.py:265
 #, python-format
 msgid "User %(user)s is no longer an operator of room %(room)s"
-msgstr "%(user)s felhasználó többé nem operátor a következő szobában: %(room)s"
+msgstr "%(user)s felhasználó már nem kezelője a következő szobában: %(room)s"
 
 #: pynicotine/chatrooms.py:474
-#, fuzzy, python-format
+#, python-format
 msgid "You are now an operator of room %(room)s"
-msgstr "Ön már nem operátora a következő szobának: %(room)s"
+msgstr "A következő szobának most Ön a kezelője: %(room)s"
 
 #: pynicotine/chatrooms.py:487
 #, python-format
 msgid "You are no longer an operator of room %(room)s"
-msgstr "Ön már nem operátora a következő szobának: %(room)s"
+msgstr "Ön már nem kezelője a következő szobának: %(room)s"
 
 #: pynicotine/chatrooms.py:562
 #, python-format
@@ -374,9 +372,9 @@ msgid "Download started: user %(user)s, file %(file)s"
 msgstr "A letöltés elindult: %(user)s felhasználó, %(file)s fájl"
 
 #: pynicotine/gtkgui/__init__.py:73 pynicotine/gtkgui/__init__.py:82
-#, fuzzy, python-format
+#, python-format
 msgid "Cannot find %s, please install it"
-msgstr "A(z) %s nem található, kérem telepítse."
+msgstr "%s nem található, kérem telepítse"
 
 #: pynicotine/gtkgui/__init__.py:195
 msgid "No graphical environment available, using headless (no GUI) mode"
@@ -541,7 +539,7 @@ msgstr "Újrakeresés _kényszerítése"
 
 #: pynicotine/gtkgui/application.py:606
 msgid "Room Invitation Rejected"
-msgstr ""
+msgstr "Szobameghívó elutasítva"
 
 #: pynicotine/gtkgui/application.py:607
 #, python-format
@@ -549,11 +547,12 @@ msgid ""
 "User %(user)s has not enabled private room invitations. Message them and ask "
 "them to do so before inviting them again."
 msgstr ""
+"%(user)s felhasználó nem engedélyezte a privát szobai meghívokat. Írjon neki "
+"üzenetet, és kérje meg, hogy engedélyezze ezt, mielőtt újra meghívná."
 
 #: pynicotine/gtkgui/application.py:611
-#, fuzzy
 msgid "Open _Private Chat"
-msgstr "Privát csevegés megnyitása"
+msgstr "_Privát csevegés megnyitása"
 
 #: pynicotine/gtkgui/application.py:815
 msgid "Message Downloading Users"
@@ -2517,7 +2516,7 @@ msgstr ""
 #: pynicotine/gtkgui/dialogs/wishlist.py:264
 #: pynicotine/gtkgui/dialogs/wishlist.py:325
 msgid "Search automatically"
-msgstr ""
+msgstr "Automatikusan keres"
 
 #: pynicotine/gtkgui/dialogs/wishlist.py:272
 #: pynicotine/gtkgui/dialogs/wishlist.py:311
@@ -2826,18 +2825,16 @@ msgid "You are offline"
 msgstr "Nincs csatlakozva"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:54
-#, fuzzy
 msgid "Connect to the server to check port status"
-msgstr "Csatlakozás a kiszolgálóhoz a port állapotának ellenőrzéséhez."
+msgstr "Csatlakozás a kiszolgálóhoz a port állapotának ellenőrzéséhez"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:59
 msgid "Checking connection status…"
 msgstr "A kapcsolat állapotának ellenőrzése…"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:60
-#, fuzzy
 msgid "Waiting for response from port checker"
-msgstr "Várakozás a portellenőrző válaszára."
+msgstr "Várakozás a portellenőrző válaszára"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:75
 #, python-format
@@ -2845,9 +2842,8 @@ msgid "Port %i (TCP) status unknown"
 msgstr "Port %i (TCP) állapota ismeretlen"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:76
-#, fuzzy
 msgid "Cannot check connection status"
-msgstr "A kapcsolat állapotát nem lehet ellenőrizni."
+msgstr "A kapcsolat állapotát nem lehet ellenőrizni"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:81
 #, python-format
@@ -2855,9 +2851,8 @@ msgid "Port %i (TCP) is open"
 msgstr "Port %i (TCP) nyitott"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:82
-#, fuzzy
 msgid "Most users can connect to you"
-msgstr "A legtöbb felhasználó csatlakozhat Önhöz."
+msgstr "A legtöbb felhasználó csatlakozhat Önhöz"
 
 #: pynicotine/gtkgui/popovers/portchecker.py:87
 #, python-format
@@ -3576,12 +3571,12 @@ msgstr "Hozzáadás ehez a privát szobához: %s"
 #: pynicotine/gtkgui/widgets/popupmenu.py:562
 #, python-format
 msgid "Remove as Operator of %s"
-msgstr "Eltávolítás %s operátoraként"
+msgstr "Eltávolítás %s kezelőjeként"
 
 #: pynicotine/gtkgui/widgets/popupmenu.py:566
 #, python-format
 msgid "Add as Operator of %s"
-msgstr "Hozzáadás %s operátoraként"
+msgstr "Hozzáadás %s kezelőjeként"
 
 #: pynicotine/gtkgui/widgets/popupmenu.py:605
 msgid "Change Room Owner?"
@@ -5265,14 +5260,14 @@ msgid "Room (%(room)s) is registered as public."
 msgstr "A szoba (%s) már nyilvánosként van regisztrálva."
 
 #: pynicotine/privatechat.py:253
-#, fuzzy, python-format
+#, python-format
 msgid "User %(user)s is now a member of room %(room)s"
-msgstr "%(user)s felhasználó többé nem operátor a következő szobában: %(room)s"
+msgstr "%(user)s felhasználó most a következő szoba tagja: %(room)s"
 
 #: pynicotine/privatechat.py:257
-#, fuzzy, python-format
+#, python-format
 msgid "User %(user)s is no longer a member of room %(room)s"
-msgstr "%(user)s felhasználó többé nem operátor a következő szobában: %(room)s"
+msgstr "%(user)s felhasználó már nem tagja a következő szobának: %(room)s"
 
 #: pynicotine/privatechat.py:281
 #, fuzzy, python-format
